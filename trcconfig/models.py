@@ -201,7 +201,7 @@ class Quantities(models.Model):
     source = models.CharField(max_length=256, blank=True, null=True)
     kind = models.CharField(max_length=128, blank=True, null=True)
     quantitykind = models.ForeignKey(Quantitykinds, models.DO_NOTHING, db_column='quantitykind_id')
-    defunit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True, db_column='unit_id')
+    defunit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True, db_column='defunit_id')
     condcnt = models.PositiveIntegerField(blank=True, null=True)
     datacnt = models.PositiveIntegerField(blank=True, null=True)
     updated = models.DateTimeField()
@@ -333,7 +333,7 @@ class Data(models.Model):
     exponent = models.TextField(blank=True, null=True)
     error = models.TextField(blank=True, null=True)
     error_type = models.CharField(max_length=8)
-    unit = models.ForeignKey('Units', models.DO_NOTHING, blank=True, null=True)
+    unit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True)
     accuracy = models.IntegerField(blank=True, null=True)
     exact = models.IntegerField()
     text = models.CharField(max_length=128, blank=True, null=True)
@@ -343,3 +343,4 @@ class Data(models.Model):
     class Meta:
         managed = False
         db_table = 'data'
+        app_label = 'data'

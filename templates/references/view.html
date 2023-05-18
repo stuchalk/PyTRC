@@ -9,7 +9,7 @@
             <div class="panel-body" style="font-size: 16px;">
                 <ul>
                     <li>
-
+                        {{ ref.title }}
                     </li>
                 </ul>
             </div>
@@ -23,7 +23,9 @@
                 <h2 class="panel-title">Data</h2>
             </div>
             <div class="list-group">
-				<a href="/datasets/view/{{  }}" class="list-group-item list-group-item-small">{{  }}</a>"
+                {{ sets }}
+
+				<a href="/datasets/view/{{ 'temp' }}" class="list-group-item list-group-item-small">{{ 'temp' }}</a>"
 			</div>
         </div>
     </div>
