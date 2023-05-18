@@ -1,0 +1,97 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+<head>
+    <title>NIST-IUPAC Solubility Data Series</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.0/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/sds.css' %}">
+</head>
+<body>
+    <header>
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid" id="navfluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+            </button>
+            <a class="navbar-brand" href=""><b>ThermoML Converter</b></a>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar">
+			<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+					   aria-expanded="false" style="font-size: 18px;">Find by...<span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="/datasets/index">Datasets</a></li>
+						<li><a href="/keywords/index">Keywords</a></li>
+						<li><a href="/references/index">References</a></li>
+						<li><a href="/substances/index">Substances</a></li>
+						<li><a href="/systems/index">Systems</a></li>
+					</ul>
+				</li>
+			</ul>
+         </div><!-- /.nav-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+</header>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <div id="content" class="container-fluid" role="main">
+        <div class="row">
+            <div class="col col-12">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade modal-index" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Thank you for visiting the NIST website</h4>
+                </div>
+                <div class="modal-body">
+                    Thank you for visiting. We hope your visit was informative and enjoyable.
+                    We have provided a link to this site because it has information that may be of interest to our users.
+                    NIST does not necessarily endorse the views expressed or the facts presented on this site. Further, NIST
+                    does not endorse any commercial products that may be advertised or available on this site. Click on the
+                    following link to go to:
+                    <br>
+                    <br>
+                    <a href="" id="exitLink"></a>
+                    <br>
+                    <br>
+                    (or you will be taken there in 10 seconds)
+                    <hr>
+                    Questions, comments: <a href="mailto:webmaster@nist.gov">webmaster@nist.gov</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.21.0/dist/bootstrap-table.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/jsmol/JSmol.min.nojq.js' %}"></script>
+    <script src="{% static 'js/sds.js' %}"></script>
+</body>
+</html>

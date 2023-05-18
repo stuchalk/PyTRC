@@ -4,12 +4,12 @@ from trcconfig.models import *
 
 def index(request):
     """ function to get a list of references """
-    refs = References.objects.values('id', 'title', 'year').all().order_by('title', '-year')
+    refs = References.objects.values('id', 'title', 'year').all().order_by('-year', 'title')
     refsbyyear = {}
     for ref in refs:
-        if ref.year not in refsbyyear.keys():
-            refsbyyear.update({ref.year: []})
-        refsbyyear[ref.year].append({'id': ref.id, 'title': ref.title})
+        if ref['year'] not in refsbyyear.keys():
+            refsbyyear.update({ref['year']: []})
+        refsbyyear[ref['year']].append({'id': ref['id'], 'title': ref['title']})
 
     temp = """
     {
@@ -23,4 +23,8 @@ def index(request):
         "2018": []
     }
     """
-    render(request, '../templates/references/index.html', {'refs': refsbyyear})
+    return render(request, '../templates/references/index.html', {'refs': refsbyyear})
+
+
+def view(request, refid=None):
+    ref = References.objects.get(id=refid)
