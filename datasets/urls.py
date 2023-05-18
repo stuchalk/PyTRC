@@ -4,5 +4,5 @@ from datasets import views
 
 
 urlpatterns = [
-    path("view/<refid>", views.view, name='ref view'),
+    path("view/<dsid>", views.view, name='dataset view'),
 ]
