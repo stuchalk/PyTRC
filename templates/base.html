@@ -9,69 +9,42 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.0/dist/bootstrap-table.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{% static 'css/sds.css' %}">
+    <link rel="stylesheet" href="{% static 'css/trc.css' %}">
 </head>
 <body>
     <header>
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container-fluid" id="navfluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-                <span class="sr-only">Toggle navigation</span>
-            </button>
-            <a class="navbar-brand" href=""><b>ThermoML Converter</b></a>
-        </div>
-        <div class="navbar-collapse collapse" id="navbar">
-			<ul class="nav navbar-nav">
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-					   aria-expanded="false" style="font-size: 18px;">Find by...<span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li><a href="/datasets/index">Datasets</a></li>
-						<li><a href="/keywords/index">Keywords</a></li>
-						<li><a href="/references/index">References</a></li>
-						<li><a href="/substances/index">Substances</a></li>
-						<li><a href="/systems/index">Systems</a></li>
-					</ul>
-				</li>
-			</ul>
-         </div><!-- /.nav-collapse -->
-    </div><!-- /.container-fluid -->
-</nav>
-</header>
+        <nav class="navbar navbar-expand-lg bg-light" role="navigation">
+            <div class="container-fluid row" id="navfluid">
+                <div class="col-10 offset-1">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-target="#navbar1">
+                        <span class="navbar-toggler-icon">Toggle navigation</span>
+                    </button>
+                    <div class="navbar-collapse collapse" id="navbar1">
+                        <a class="navbar-brand" href="#"><b>ThermoML Converter</b></a>
+                        <ul class="navbar-nav">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Find by...<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/datasets/index">Datasets</a></li>
+                                    <li><a class="dropdown-item" href="/keywords/index">Keywords</a></li>
+                                    <li><a class="dropdown-item" href="/references/index">References</a></li>
+                                    <li><a class="dropdown-item" href="/substances/index">Substances</a></li>
+                                    <li><a class="dropdown-item" href="/systems/index">Systems</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div><!-- /.nav-collapse -->
+                </div><!-- /.container-fluid -->
+            </div>
+        </nav>
+    </header>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <div id="content" class="container-fluid" role="main">
-        <div class="row">
+        <div class="row mt-3">
             <div class="col col-12">
                 {% block content %}
                 {% endblock %}
-            </div>
-        </div>
-    </div>
-    <!-- Modal -->
-    <div class="modal fade modal-index" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4 class="modal-title" id="myModalLabel">Thank you for visiting the NIST website</h4>
-                </div>
-                <div class="modal-body">
-                    Thank you for visiting. We hope your visit was informative and enjoyable.
-                    We have provided a link to this site because it has information that may be of interest to our users.
-                    NIST does not necessarily endorse the views expressed or the facts presented on this site. Further, NIST
-                    does not endorse any commercial products that may be advertised or available on this site. Click on the
-                    following link to go to:
-                    <br>
-                    <br>
-                    <a href="" id="exitLink"></a>
-                    <br>
-                    <br>
-                    (or you will be taken there in 10 seconds)
-                    <hr>
-                    Questions, comments: <a href="mailto:webmaster@nist.gov">webmaster@nist.gov</a>
-                </div>
             </div>
         </div>
     </div>
@@ -92,6 +65,6 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script type="text/javascript" src="{% static 'js/jsmol/JSmol.min.nojq.js' %}"></script>
-    <script src="{% static 'js/sds.js' %}"></script>
+    <script src="{% static 'js/trc.js' %}"></script>
 </body>
 </html>
