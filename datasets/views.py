@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from trcconfig.models import *
+from datasets.functions import *
 
 
 def view(request, dsid=None):
@@ -8,5 +9,7 @@ def view(request, dsid=None):
     refid = dset.reference_id
     # get the reference data
     ref = References.objects.get(id=refid)
+    # get the quantity that was measured
+    quants = qlist(dsid)
 
-    return render(request, '../templates/datasets/view.html', {'ref': ref})
+    return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants})

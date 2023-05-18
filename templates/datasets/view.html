@@ -1,28 +1,34 @@
-<!-- metadata -->
-<div class="row">
-	<div class="col-12">
-        <div class="card">
-            <div class="card-header bg-primary">
-                <div class="col-12 col-10">
-					<h2 class="panel-title">
-						{{ ref.title }}
-					</h2>
-				</div>
-				<div class="col-12">
-
-				</div>
-			</div>
-            <div class="card-body" style="font-size: 16px;">
-                <!-- add JSON-LD image -->
-                <ul>
-                    <li><!-- journal link --></li>
-                    <li>Substances:</li>
-                </ul>
-             </div>
+{% extends 'base.html' %}
+{% block title %} Datasets View {% endblock %}
+{% block header %} Datasets View {% endblock %}
+{% block content %}
+    <!-- metadata -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary row">
+                    <div class="col-10">
+                    <h6 class="card-title text-white">
+                        <a class="link-light" href="https://doi.org/{{ ref.doi }}" target="_blank">{{ ref.title }}</a>
+                        {{ ref.aulist }}; <em>{{ ref.journal.name }}</em> {{ ref.year }}
+                    </h6>
+                    </div>
+                    <div class="col-2">
+                        <!-- add related menu -->
+                    </div>
+                </div>
+                <div class="card-body" style="font-size: 16px;">
+                    <!-- add JSON-LD image and link to JSON-LD file -->
+                    <ul>
+                        <li>Journal: <a href="{{ ref.journal.url }}" target="_blank">{{ ref.journal.name }}</a></li>
+                        <li>Sample Quantity(ies): {{ quants }}</li>
+                        <li>Substances:</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<!-- data/graph -->
+    <!-- data/graph -->
     <div class="row">
         <div class="col">
             <!-- create data table -->
@@ -31,5 +37,4 @@
             <!-- create chart -->
         </div>
     </div>
-
-
+{% endblock %}
