@@ -279,7 +279,7 @@ class Conditions(models.Model):
     quantity = models.ForeignKey(Quantities, models.DO_NOTHING, blank=True, null=True, db_column='quantity_id')
     system = models.ForeignKey(Systems, models.DO_NOTHING, blank=True, null=True, db_column='system_id')
     component = models.ForeignKey(Components, models.DO_NOTHING, blank=True, null=True, db_column='component_id')
-    phase = models.ForeignKey(Phases, models.DO_NOTHING, blank=True, null=True, db_column='phases_id')
+    phase = models.ForeignKey(Phases, models.DO_NOTHING, blank=True, null=True, db_column='phase_id')
     number = models.TextField(blank=True, null=True)
     significand = models.TextField(blank=True, null=True)
     exponent = models.TextField(blank=True, null=True)

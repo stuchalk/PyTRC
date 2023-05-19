@@ -6,15 +6,25 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-primary row">
-                    <div class="col-10">
-                    <h6 class="card-title text-white">
-                        <a class="link-light" href="https://doi.org/{{ ref.doi }}" target="_blank">{{ ref.title }}</a>
-                        {{ ref.aulist }}; <em>{{ ref.journal.name }}</em> {{ ref.year }}
-                    </h6>
-                    </div>
-                    <div class="col-2">
-                        <!-- add related menu -->
+                <div class="card-header bg-primary">
+                    <div class="row">
+                        <div class="col-10">
+                            <h6 class="card-title text-white">
+                                <a class="link-light" href="https://doi.org/{{ ref.doi }}" target="_blank">{{ ref.title }}</a>
+                                {{ ref.aulist }}; <em>{{ ref.journal.name }}</em> {{ ref.year }}, {{ ref.volume }},
+                                {{ ref.startpage }}{% if ref.endpage %}-{{ ref.endpage }}{% endif %}
+                            </h6>
+                        </div>
+                        <div class="col-2">
+                            <!-- add related menu -->
+                            <label for="related" hidden=""></label>
+                            <select id="related">
+                                <option value="">Related Datasets</option>
+                                {% for rel in rels %}
+                                    <option value="/datasets/view/{{ rel.id }}">{{ rel.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body" style="font-size: 16px;">
@@ -22,6 +32,8 @@
                     <ul>
                         <li>Journal: <a href="{{ ref.journal.url }}" target="_blank">{{ ref.journal.name }}</a></li>
                         <li>Sample Quantity(ies): {{ quants }}</li>
+                        <li>Methodology: {{ method }}</li>
+                        <li>Phase(s): {{ phases }}</li>
                         <li>Substances:</li>
                     </ul>
                 </div>
