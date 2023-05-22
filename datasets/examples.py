@@ -62,7 +62,8 @@ def formatset(dsid):
                     series['hdrs'].update({col: hdr})
                     series['cols'].update({col: []})
                     series['colidx'].append(col)
-                series['cols'][col].append(round(datum.number, sigfigs=datum.accuracy, warn=False))
+                series['colidx'].append(col)
+                series['cols'][col].append(round(datum.number, sigfigs=datum.accuracy))
                 cidx += 1
         data.append(series)
     print(json.dumps(data, indent=4))

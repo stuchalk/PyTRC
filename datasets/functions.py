@@ -59,7 +59,9 @@ def getdset(dsid):
                     series['hdrs'].update({col: hdr})
                     series['cols'].update({col: []})
                     series['colidx'].append(col)
-                series['cols'][col].append(round(datum.number, sigfigs=datum.accuracy, warn=False))
+                # series['cols'][col].append(round(datum.number, sigfigs=datum.accuracy, warn=False))
+                series['cols'][col].append(float(datum.number))
+
                 cidx += 1
         data.append(series)
     return data

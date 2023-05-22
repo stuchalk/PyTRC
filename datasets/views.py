@@ -1,8 +1,9 @@
 """ datasets views file """
 from django.shortcuts import render
+from django.http import JsonResponse
 from trcconfig.models import *
 from datasets.functions import *
-import pandas as pd
+from scidatalib.scidata import SciData
 
 
 def view(request, dsid=None):
@@ -50,3 +51,38 @@ def view(request, dsid=None):
 
     return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants, 'rels': rels, 'sets': sets,
                                                                'method': method, 'phases': pstr, 'subs': subs})
+
+
+def scidata(request, dsid=None):
+    """ create scidata JSON-LD"""
+    # get the data
+    dset = Datasets.objects.get(id=dsid)
+    refid = dset.reference_id
+    # get the reference data
+    ref = References.objects.get(id=refid)
+    # generate the JSON-LD
+    uid = 'trc_' + str(dsid)
+    jld = SciData(uid)
+    jld.base('https://scidata.unf.edu/example')
+    jld.context(['https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld',
+                 'https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld',
+                 'https://stuchalk.github.io/scidata/contexts/crg_substance.jsonld'])
+    # jld.namespaces()
+    jld.title('SciData JSON-LD file of data from the NIST TRC dataset')
+    jld.description('SciData JSON-LD generate using the SciDataLib Python package')
+    au = {'name': 'Stuart J. Chalk', 'orcid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
+          'role': 'developer', 'email': 'schalk@unf.edu'}
+    jld.author([au])
+    jld.version('1')
+    # add substances
+    # add sources
+    citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
+              ref.volume + ", " + ref.startpage
+    if ref.endpage:
+        citestr += "-" + ref.endpage
+    src1 = {'citation': citestr, 'url': 'https://doi.org/' + ref.doi, 'type': 'paper'}
+
+    jld.sources([src1])
+
+    output = jld.output
+    return JsonResponse(output, status=200)
