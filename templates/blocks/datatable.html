@@ -1,0 +1,12 @@
+{% load set_extras %}
+<table id="table{{ tablenum }}" class="table table-sm table-striped table-responsive">
+    <thead>
+    {{ dataset | df2htmlhdrs | safe}}
+    </thead>
+    <tbody>
+    {{ dataset | df2htmlrows | safe}}
+    </tbody>
+    {% if dataset.sconds|length > 0 %}
+        <tfoot>{{ dataset.sconds|join: ", " }}</tfoot>
+    {% endif %}
+</table>

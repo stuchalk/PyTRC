@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from trcconfig.models import *
 from datasets.functions import *
+import pandas as pd
 
 
 def view(request, dsid=None):
@@ -33,6 +34,19 @@ def view(request, dsid=None):
     phases.sort()
     pstr = "' ".join(phases)
     # get substance(s)
+    comps = dset.mixtures_set.all()[0].components_set.all().order_by('compnum')
+    subs = []
+    for comp in comps:
+        chem = comp.chemical
+        sub = {}
+        sub.update({'id': chem.substance.id})
+        sub.update({'name': chem.substance.name})
+        sub.update({'formula': chem.substance.formula})
+        sub.update({'ikey': chem.substance.inchikey})
+        sub.update({'source': chem.sourcetype})
+        subs.append(sub)
+    # get datasets
+    sets = getdset(dsid)
 
-    return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants, 'rels': rels,
-                                                               'method': method, 'phases': pstr})
+    return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants, 'rels': rels, 'sets': sets,
+                                                               'method': method, 'phases': pstr, 'subs': subs})

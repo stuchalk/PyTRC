@@ -1,7 +1,9 @@
+""" TRC project model definitions """
 from django.db import models
 
 
 class Journals(models.Model):
+    """ journals table model """
     name = models.CharField(max_length=256)
     coden = models.CharField(max_length=128, blank=True, null=True)
     issn = models.CharField(max_length=9, blank=True, null=True)
@@ -20,8 +22,9 @@ class Journals(models.Model):
 
 
 class References(models.Model):
+    """ references table model """
     id = models.SmallAutoField(primary_key=True)
-    journal = models.ForeignKey(Journals, models.DO_NOTHING)
+    journal = models.ForeignKey(Journals, models.DO_NOTHING, db_column='journal_id')
     authors = models.CharField(max_length=2048, blank=True, null=True)
     aulist = models.CharField(max_length=2048, blank=True, null=True)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -40,6 +43,7 @@ class References(models.Model):
 
 
 class Substances(models.Model):
+    """ substances table model """
     name = models.CharField(max_length=1024)
     type = models.CharField(max_length=9, blank=True, null=True)
     subtype = models.CharField(max_length=256, blank=True, null=True)
@@ -58,6 +62,7 @@ class Substances(models.Model):
 
 
 class Identifiers(models.Model):
+    """ identifiers table model """
     substance = models.ForeignKey(Substances, models.DO_NOTHING, db_column='substance_id')
     type = models.CharField(max_length=12)
     value = models.CharField(max_length=1024)
@@ -71,6 +76,7 @@ class Identifiers(models.Model):
 
 
 class Files(models.Model):
+    """ files table model """
     trcid = models.CharField(max_length=32, blank=True, null=True)
     abstract = models.CharField(max_length=4096, blank=True, null=True)
     date = models.CharField(max_length=16, blank=True, null=True)
@@ -87,6 +93,7 @@ class Files(models.Model):
 
 
 class Reports(models.Model):
+    """ reports table model """
     title = models.CharField(max_length=512, blank=True, null=True)
     description = models.CharField(max_length=1024, blank=True, null=True)
     file = models.ForeignKey(Files, models.DO_NOTHING, blank=True, null=True, db_column='file_id')
@@ -101,6 +108,7 @@ class Reports(models.Model):
 
 
 class Systems(models.Model):
+    """ systems table model """
     name = models.CharField(max_length=300)
     composition = models.CharField(max_length=19, blank=True, null=True)
     identifier = models.CharField(unique=True, max_length=128)
@@ -114,7 +122,20 @@ class Systems(models.Model):
         app_label = 'systems'
 
 
+class SubstancesSystems(models.Model):
+    """ substances_system join table model """
+    substance = models.ForeignKey(Substances, models.DO_NOTHING, db_column='substance_id')
+    system = models.ForeignKey(Systems, models.DO_NOTHING, db_column='system_id')
+    updated = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'substances_systems'
+        app_label = 'substances_systems'
+
+
 class Datasets(models.Model):
+    """ journals table model """
     title = models.CharField(max_length=512, blank=True, null=True)
     setnum = models.PositiveSmallIntegerField(blank=True, null=True)
     file = models.ForeignKey(Files, models.DO_NOTHING, blank=True, null=True, db_column='file_id')
@@ -132,6 +153,7 @@ class Datasets(models.Model):
 
 
 class Dataseries(models.Model):
+    """ dataseries table model """
     dataset = models.ForeignKey(Datasets, models.DO_NOTHING, db_column='dataset_id')
     idx = models.PositiveSmallIntegerField()
     points = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -144,6 +166,7 @@ class Dataseries(models.Model):
 
 
 class Datapoints(models.Model):
+    """ datapoints table model """
     dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True, db_column='dataset_id')
     dataseries = models.ForeignKey(Dataseries, models.DO_NOTHING, blank=True, null=True, db_column='dataseries_id')
     row_index = models.CharField(max_length=10, blank=True, null=True)
@@ -156,6 +179,7 @@ class Datapoints(models.Model):
 
 
 class Units(models.Model):
+    """ units table model """
     name = models.CharField(max_length=256)
     symbol = models.CharField(max_length=128)
     type = models.CharField(max_length=9)
@@ -172,6 +196,7 @@ class Units(models.Model):
 
 
 class Quantitykinds(models.Model):
+    """ quantitykinds table model """
     id = models.SmallAutoField(primary_key=True)
     name = models.CharField(max_length=128)
     altname = models.CharField(max_length=64, blank=True, null=True)
@@ -189,6 +214,7 @@ class Quantitykinds(models.Model):
 
 
 class Quantities(models.Model):
+    """ quantities table model """
     id = models.SmallAutoField(primary_key=True)
     name = models.CharField(max_length=128)
     phase = models.CharField(max_length=128, blank=True, null=True)
@@ -213,6 +239,7 @@ class Quantities(models.Model):
 
 
 class Chemicals(models.Model):
+    """ chemicals table model """
     file = models.ForeignKey(Files, models.DO_NOTHING, db_column='file_id')
     substance = models.ForeignKey(Substances, models.DO_NOTHING, blank=True, null=True, db_column='substance_id')
     orgnum = models.PositiveIntegerField()
@@ -226,8 +253,9 @@ class Chemicals(models.Model):
 
 
 class Mixtures(models.Model):
-    system = models.ForeignKey(Systems, models.DO_NOTHING, blank=True, null=True)
-    dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True)
+    """ mixtures table model """
+    system = models.ForeignKey(Systems, models.DO_NOTHING, blank=True, null=True, db_column='system_id')
+    dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True, db_column='dataset_id')
     updated = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -238,8 +266,9 @@ class Mixtures(models.Model):
 
 
 class Components(models.Model):
-    chemical = models.ForeignKey(Chemicals, models.DO_NOTHING)
-    mixture = models.ForeignKey(Mixtures, models.DO_NOTHING)
+    """ components table model """
+    chemical = models.ForeignKey(Chemicals, models.DO_NOTHING, db_column='chemical_id')
+    mixture = models.ForeignKey(Mixtures, models.DO_NOTHING, db_column='mixture_id')
     compnum = models.PositiveIntegerField(blank=True, null=True)
     updated = models.DateTimeField()
 
@@ -250,6 +279,7 @@ class Components(models.Model):
 
 
 class Phasetypes(models.Model):
+    """ phasetypes table model """
     name = models.CharField(max_length=64)
     type = models.CharField(max_length=14, blank=True, null=True)
     updated = models.DateTimeField()
@@ -261,6 +291,7 @@ class Phasetypes(models.Model):
 
 
 class Phases(models.Model):
+    """ phases table model """
     mixture = models.ForeignKey(Mixtures, models.DO_NOTHING, db_column='mixture_id')
     phasetype = models.ForeignKey(Phasetypes, models.DO_NOTHING, db_column='phasetype_id')
     orgnum = models.PositiveIntegerField(blank=True, null=True)
@@ -273,6 +304,7 @@ class Phases(models.Model):
 
 
 class Conditions(models.Model):
+    """ conditions table model """
     dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True, db_column='dataset_id')
     dataseries = models.ForeignKey(Dataseries, models.DO_NOTHING, blank=True, null=True, db_column='dataseries_id')
     datapoint = models.ForeignKey(Datapoints, models.DO_NOTHING, blank=True, null=True, db_column='datapoint_id')
@@ -297,7 +329,8 @@ class Conditions(models.Model):
 
 
 class Sampleprops(models.Model):
-    dataset = models.ForeignKey(Datasets, models.DO_NOTHING)
+    """ sampleprops table model """
+    dataset = models.ForeignKey(Datasets, models.DO_NOTHING, db_column='dataset_id')
     propnum = models.CharField(max_length=256, blank=True, null=True)
     orgnum = models.CharField(max_length=256, blank=True, null=True)
     quantity_group = models.CharField(max_length=256, blank=True, null=True)
@@ -321,19 +354,20 @@ class Sampleprops(models.Model):
 
 
 class Data(models.Model):
-    dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True)
-    dataseries = models.ForeignKey(Dataseries, models.DO_NOTHING, blank=True, null=True)
-    datapoint = models.ForeignKey(Datapoints, models.DO_NOTHING, blank=True, null=True)
-    quantity = models.ForeignKey(Quantities, models.DO_NOTHING, blank=True, null=True)
-    sampleprop = models.ForeignKey(Sampleprops, models.DO_NOTHING, blank=True, null=True)
-    component = models.ForeignKey(Components, models.DO_NOTHING, blank=True, null=True)
-    phase = models.ForeignKey(Phases, models.DO_NOTHING, blank=True, null=True)
+    """ data table model """
+    dataset = models.ForeignKey(Datasets, models.DO_NOTHING, blank=True, null=True, db_column='dataset_id')
+    dataseries = models.ForeignKey(Dataseries, models.DO_NOTHING, blank=True, null=True, db_column='dataseries_id')
+    datapoint = models.ForeignKey(Datapoints, models.DO_NOTHING, blank=True, null=True, db_column='datapoint_id')
+    quantity = models.ForeignKey(Quantities, models.DO_NOTHING, blank=True, null=True, db_column='quantity_id')
+    sampleprop = models.ForeignKey(Sampleprops, models.DO_NOTHING, blank=True, null=True, db_column='sampleprop_id')
+    component = models.ForeignKey(Components, models.DO_NOTHING, blank=True, null=True, db_column='component_id')
+    phase = models.ForeignKey(Phases, models.DO_NOTHING, blank=True, null=True, db_column='phase_id')
     number = models.TextField(blank=True, null=True)
     significand = models.TextField(blank=True, null=True)
     exponent = models.TextField(blank=True, null=True)
     error = models.TextField(blank=True, null=True)
     error_type = models.CharField(max_length=8)
-    unit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True)
+    unit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True, db_column='unit_id')
     accuracy = models.IntegerField(blank=True, null=True)
     exact = models.IntegerField()
     text = models.CharField(max_length=128, blank=True, null=True)

@@ -1,0 +1,73 @@
+
+<ul class="nav nav-tabs nav-fill">
+    {% for ser in sers %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link{% if forloop.counter == 1 %} active{% endif %}" id="meta-tab" data-bs-toggle="tab" data-bs-target="#tab-pane-{{ forloop.counter }}" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">Table {{ forloop.counter }}</button>
+        </li>
+    {% endfor %}
+</ul>
+<div class="tab-content" id="myTabContent">
+    {% for ser in sers %}
+        <div class="tab-pane fade{% if forloop.counter == 1 %} show active{% endif %}" id="tab-pane-{{ forloop.counter }}" role="tabpanel" aria-labelledby="tab- {{ forloop.counter }}" tabindex="{{ forloop.counter }}">
+            <h6 class="mt-3">{{ ser.caption|safe }}</h6>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped responsive-font mb-1">
+                    <thead>
+                    {% for h in ser.headings %}
+                        <th scope="col">{{ h|safe }}</th>
+                    {% endfor %}
+                    </thead>
+                    <tbody>
+                    {% for pnt in ser.points %}
+                        <tr>
+                            {% for con in pnt.cons %}
+                                <td>
+                                    {% if con.c is not None %}
+                                        {{ con.c }}&nbsp;
+                                    {% endif %}
+                                    {% if con.v is not None %}
+                                        {{ con.v|safe }}
+                                    {% else %}
+                                        {{ con.t|safe }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                            {% for dat in pnt.dats %}
+                                <td>
+                                    {% if dat.c is not None %}
+                                        {{ dat.c }}&nbsp;
+                                    {% endif %}
+                                    {% if dat.v is not None %}
+                                        {{ dat.v|safe }}
+                                    {% else %}
+                                        {{ dat.t|safe }}
+                                    {% endif %}</td>
+                            {% endfor %}
+                            {% for sup in pnt.sups %}
+                                <td>
+                                    {% if sup.c is not None %}
+                                        {{ sup.c }}&nbsp;
+                                    {% endif %}
+                                    {% if sup.v is not None %}
+                                        {{ sup.v|safe }}
+                                    {% else %}
+                                        {{ sup.t|safe }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <p class="responsive-footnote fw-light mb-0">
+                    {% for k, v in notes.items %}
+                        {% if k == ser.num %}
+                            {% for n, t in v.items %}
+                                ({{ n }}) {{ t|safe }}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>

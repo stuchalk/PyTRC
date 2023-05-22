@@ -1,22 +1,27 @@
-""" helper functions for datasets table data """
-from trcconfig.models import Datasets
+""" example code testing file """
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "trcconfig.settings")
+django.setup()
+
+from trcconfig.models import *
+import pandas as pd
 from sigfig import round
+import json
 
 
-def qlist(dsid=None):
-    """ get the quantities that have been determined in a specific dataset """
-    dset = Datasets.objects.get(id=dsid)
-    samps = dset.sampleprops_set.all()
-    qts = []
-    for samp in samps:
-        if samp.quantity.name not in qts:
-            qts.append(samp.quantity.name)
-    qstr = ", ".join(qts)
-    return qstr
+def trypd():
+    """ testing pandas """
+    data = {
+        "calories": [420, 380, 390],
+        "duration": [50, 40, 45]
+    }
+    myvar = pd.DataFrame(data)
+    print(myvar.info())
 
 
-# noinspection DuplicatedCode
-def getdset(dsid):
+def formatset(dsid):
     """ function to aggregate data about a dataset """
     # get the dataset
     dset = Datasets.objects.get(id=dsid)
@@ -24,15 +29,13 @@ def getdset(dsid):
     sers = dset.dataseries_set.all().order_by('idx')
     data = []
     for ser in sers:
-        series = {'idx': ser.idx, 'hdrs': {}, 'cols': {}, 'colidx': [], 'rowidx': [], 'sconds': ""}
+        series = {'idx': ser.idx, 'hdrs': {}, 'cols': {}, 'colidx': [], 'rowidx': [], 'sconds': []}
         rows = ser.datapoints_set.all().order_by('row_index')
         sconds = ser.conditions_set.all()  # series conditions
         # add series conditions
-        for scidx, sc in enumerate(sconds):
-            if scidx > 0:
-                series['sconds'] += ", "
+        for sc in sconds:
             val = round(sc.number, sigfigs=sc.accuracy, warn=False)
-            series['sconds'] += sc.quantity.symbol + " = " + str(val) + " " + sc.unit.symbol
+            series['sconds'].append(sc.quantity.symbol + " " + str(val) + " " + sc.unit.symbol)
         for ridx, row in enumerate(rows):
             conds = row.conditions_set.all()
             datums = row.data_set.all()
@@ -62,4 +65,7 @@ def getdset(dsid):
                 series['cols'][col].append(round(datum.number, sigfigs=datum.accuracy, warn=False))
                 cidx += 1
         data.append(series)
-    return data
+    print(json.dumps(data, indent=4))
+
+
+formatset(31031)

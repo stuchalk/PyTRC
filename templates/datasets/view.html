@@ -1,29 +1,32 @@
 {% extends 'base.html' %}
+{% load set_extras %}
 {% block title %} Datasets View {% endblock %}
 {% block header %} Datasets View {% endblock %}
 {% block content %}
     <!-- metadata -->
     <div class="row">
-        <div class="col-12">
+        <div class="col-10 offset-1 mb-3">
             <div class="card">
                 <div class="card-header bg-primary">
                     <div class="row">
-                        <div class="col-10">
+                        <div class="col-9">
                             <h6 class="card-title text-white">
                                 <a class="link-light" href="https://doi.org/{{ ref.doi }}" target="_blank">{{ ref.title }}</a>
                                 {{ ref.aulist }}; <em>{{ ref.journal.name }}</em> {{ ref.year }}, {{ ref.volume }},
                                 {{ ref.startpage }}{% if ref.endpage %}-{{ ref.endpage }}{% endif %}
                             </h6>
                         </div>
-                        <div class="col-2">
-                            <!-- add related menu -->
-                            <label for="related" hidden=""></label>
-                            <select id="related">
-                                <option value="">Related Datasets</option>
-                                {% for rel in rels %}
-                                    <option value="/datasets/view/{{ rel.id }}">{{ rel.title }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-3">
+                            <div class="float-end">
+                                <!-- add related menu -->
+                                <label for="related" hidden=""></label>
+                                <select id="related" dir="rtl" style="width: 150px;">
+                                    <option value="">Related Datasets</option>
+                                    {% for rel in rels %}
+                                        <option value="/datasets/view/{{ rel.id }}">{{ rel.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -34,7 +37,15 @@
                         <li>Sample Quantity(ies): {{ quants }}</li>
                         <li>Methodology: {{ method }}</li>
                         <li>Phase(s): {{ phases }}</li>
-                        <li>Substances:</li>
+                        <li>Substances:
+                            <ol>
+                                {% for sub in subs %}
+                                    <li><a href="/substances/view/{{ sub.id }}">
+                                        {{ sub.name }} {{ sub.formula }} ({{ sub.ikey }}) - {{ sub.source }}
+                                    </a></li>
+                                {% endfor %}
+                            </ol>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -42,10 +53,44 @@
     </div>
     <!-- data/graph -->
     <div class="row">
-        <div class="col">
+        <div class="col-5 offset-1">
             <!-- create data table -->
+            <div class="card">
+                <div class="card-header bg-info">
+                    <h5 class="card-title">Data</h5>
+                </div>
+                <div class="card-body responsivediv400">
+                    {% if sets|length == 1 %}
+                        {% with dset=sets.0 %}
+                            <table class="table table-condensed table-striped">
+                                {% if dset.sconds|length > 0 %}
+                                    <caption class="fw-bold">{{ dset.sconds|safe }}</caption>
+                                {% endif %}
+                                <thead class="fw-bold">
+                                {% for cidx in dset.colidx %}
+                                    <td class="col">{{ dset.hdrs|getbykey:cidx|safe }}</td>
+                                {% endfor %}
+                                </thead>
+                                <tbody>
+                                    {% for ridx in dset.rowidx %}
+                                        <tr>
+                                            {% for cidx in dset.colidx %}
+                                                {% with col=dset.cols|getbykey:cidx %}
+                                                    <td>{{ col|getbykey:ridx|safe }}</td>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endwith %}
+                    {% else %}
+                        Please code me!
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <div class="col">
+        <div class="col-5">
             <!-- create chart -->
         </div>
     </div>
