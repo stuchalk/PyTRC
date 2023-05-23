@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %} Substances Index {% endblock %}
+{% block header %} Substances Index {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-8 offset-1">
+            <h3>Substances</h3>
+        </div>
+        <div class="col-2">
+            <label for="listsrc" hidden=""></label>
+            <input id="listsrc" placeholder="Search keywords..." class="form-control pull-right" data-search-override="true" type="text"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10 offset-1">
+            <div class="accordion" id="subaccordion">
+                {% for char, sublist in subs.items %}
+                    <div class="accordion-item sections">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}" data-sort="{{ termchar }}">
+                            <button class="accordion-button bg-light p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                                <strong>{{ char }} ({{ sublist|length }} Substances)</strong>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse{% if forloop.counter == 1 %} show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#subaccordion">
+                            <div class="accordion-body list-group listgrp-flush p-0">
+                                {% for sub in sublist %}
+                                    <a href="/substances/view/{{ sub }}" class="list-group-item list-group-item-small item" data-content="{{ sub|lower }}">{{ sub }} </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

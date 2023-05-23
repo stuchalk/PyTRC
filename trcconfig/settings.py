@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'datasets',
     'files',
+    'keywords',
     'journals',
     'references',
     'reports',

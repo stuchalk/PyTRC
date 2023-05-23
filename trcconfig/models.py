@@ -4,6 +4,7 @@ from django.db import models
 
 class Journals(models.Model):
     """ journals table model """
+    id = models.SmallAutoField(primary_key=True)
     name = models.CharField(max_length=256)
     coden = models.CharField(max_length=128, blank=True, null=True)
     issn = models.CharField(max_length=9, blank=True, null=True)
@@ -105,6 +106,20 @@ class Reports(models.Model):
         managed = False
         db_table = 'reports'
         app_label = 'reports'
+
+
+class Keywords(models.Model):
+    """ keywords table model """
+    id = models.SmallAutoField(primary_key=True)
+    report = models.ForeignKey(Reports, models.DO_NOTHING, blank=True, null=True, db_column='report_id')
+    term = models.CharField(max_length=256, blank=True, null=True)
+    chk = models.BooleanField(db_column='check')
+    updated = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'keywords'
+        app_label = 'keywords'
 
 
 class Systems(models.Model):
