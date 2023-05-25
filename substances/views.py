@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from trcconfig.models import *
-
+from django.db.models.functions import Lower
 
 def index(request):
     """ function to get a list of substances """
-    subs = Substances.objects.values('name').all().order_by('name')
+    subs = Substances.objects.values('name').all().order_by(Lower('name'))
     subsbychar = {}
     for sub in subs:
         if str(sub['name']).upper()[0] not in subsbychar.keys():

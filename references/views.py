@@ -15,9 +15,12 @@ def index(request):
 
 
 def view(request, refid=None):
-    if not refid:
-        return redirect('/references')
-    ref = References.objects.get(id=refid)
+    # get the data
+    try:
+        ref = References.objects.get(id=refid)
+    except References.DoesNotExist:
+        return redirect('/references/')
+
     dsets = ref.datasets_set.all()
     sets = []
     for dset in dsets:
@@ -30,3 +33,7 @@ def view(request, refid=None):
         descstr += s['quantities'] + ", <b>system:</b> " + s['system']
         sets.append({'id': dset.id, 'desc': descstr})
     return render(request, '../templates/references/view.html', {'ref': ref, 'sets': sets})
+
+
+def rdr(request, bad=None):
+    return redirect('/references/')

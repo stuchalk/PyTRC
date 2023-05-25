@@ -22,6 +22,6 @@ urlpatterns = [
     path('substances/', include('substances.urls')),
     path('systems/', include('systems.urls')),
     path('references/', include('references.urls')),
-    path('references/view/', include('references.urls')),
+    path('datasets/', include('datasets.urls')),
     path('keywords/', include('keywords.urls'))
 ]

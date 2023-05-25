@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from trcconfig.models import *
+from django.db.models.functions import Lower
+
 
 def index(request):
     """ function to get a list of systems """
-    syss = Systems.objects.values('name', 'id').all().order_by('name')
+    syss = Systems.objects.values('name', 'id').all().order_by(Lower('name'))
     sysbychar = {}
     for sys in syss:
         if str(sys['name']).upper()[0] not in sysbychar.keys():
@@ -11,7 +13,7 @@ def index(request):
         if str(sys['name']) not in sysbychar[str(sys['name']).upper()[0]].keys():
             sysbychar[str(sys['name']).upper()[0]].update({str(sys['name']): []})
         sysbychar[str(sys['name']).upper()[0]][str(sys['name'])].append(sys['id'])
-    return render(request, '../templates/systems/index.html', {'syss': sysbychar})
+    return render(request, '../templates/systems/index.html', {'syss': sysbychar, 'app': 'Systems'})
 
 """
 def view(request, refid=None):
