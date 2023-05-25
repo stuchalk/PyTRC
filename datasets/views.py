@@ -54,31 +54,29 @@ def view(request, dsid=None):
 
 
 def scidata(request, dsid=None):
-    # get the dataset
+    """ create scidata JSON-LD"""
+    # get the data
     dset = Datasets.objects.get(id=dsid)
     refid = dset.reference_id
     # get the reference data
     ref = References.objects.get(id=refid)
-
-    """ create scidata JSON-LD """
+    # generate the JSON-LD
     uid = 'trc_' + str(dsid)
     jld = SciData(uid)
     jld.base('https://scidata.unf.edu/example')
-    jld.context(["https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld",
-                 "https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld",
-                 "https://stuchalk.github.io/scidata/contexts/crg_substance.jsonld"])
+    jld.context(['https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld',
+                 'https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld',
+                 'https://stuchalk.github.io/scidata/contexts/crg_substance.jsonld'])
     # jld.namespaces()
     jld.title('SciData JSON-LD file of data from the NIST TRC dataset')
-    jld.description('SciData JSON-LD generated using the SciDataLib Python package')
-    aus = {'name': 'Stuart J. Chalk', 'orchid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
-           'role': 'developer', 'email': 'schalk@unf.edu'}
-    jld.author([aus])
+    jld.description('SciData JSON-LD generate using the SciDataLib Python package')
+    au = {'name': 'Stuart J. Chalk', 'orcid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
+          'role': 'developer', 'email': 'schalk@unf.edu'}
+    jld.author([au])
     jld.version('1')
     # add substances
-
-
-
-    citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + " " + \
+    # add sources
+    citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
               ref.volume + ", " + ref.startpage
     if ref.endpage:
         citestr += "-" + ref.endpage
