@@ -393,3 +393,20 @@ class Data(models.Model):
         managed = False
         db_table = 'data'
         app_label = 'data'
+
+
+class Purificationsteps(models.Model):
+    chemical = models.ForeignKey(Chemicals, models.DO_NOTHING, db_column='chemical_id')
+    step = models.PositiveIntegerField()
+    type = models.CharField(max_length=128, db_collation='utf8_bin', blank=True, null=True)
+    purity = models.CharField(max_length=16, db_collation='utf8_bin', blank=True, null=True)
+    puritysf = models.PositiveIntegerField(blank=True, null=True)
+    purityunit = models.ForeignKey(Units, models.DO_NOTHING, blank=True, null=True, db_column='unit_id')
+    analmeth = models.CharField(max_length=1024, db_collation='utf8_bin', blank=True, null=True)
+    purimeth = models.CharField(max_length=1024, db_collation='utf8_bin', blank=True, null=True)
+    updated = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'purificationsteps'
+        app_label = 'purificationsteps'

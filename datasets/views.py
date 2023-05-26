@@ -49,9 +49,10 @@ def view(request, dsid=None):
         subs.append(sub)
     # get datasets
     sets = getdset(dsid)
-
-    return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants, 'rels': rels, 'sets': sets,
-                                                               'method': method, 'phases': pstr, 'subs': subs})
+    sys = dset.system
+    return render(request, '../templates/datasets/view.html', {'ref': ref, 'quants': quants, 'rels': rels,
+                                                               'sets': sets, 'method': method, 'phases': pstr,
+                                                               'subs': subs, 'sys': sys})
 
 
 def scidata(request, dsid=None):
@@ -67,7 +68,7 @@ def scidata(request, dsid=None):
     uid = 'trc_' + jcode + '_' + dparts[1] + '_' + str(dset.setnum)
     # create SciData object
     jld = SciData(uid)
-    base = 'https://scidata.unf.edu/tranche/trc/' + jcode + '/' + uid
+    base = 'https://scidata.unf.edu/tranche/trc/' + jcode + '/' + uid + '/'
     jld.base(base)
     jld.context(['https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld',
                  'https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld',
@@ -89,7 +90,29 @@ def scidata(request, dsid=None):
            'role': 'developer', 'email': 'schalk@unf.edu'}
     jld.author([au1, au2])
     jld.version('1')
+    # add discipline and subdiscipline
+    jld.discipline('w3i:Chemistry')
+    jld.subdiscipline('w3i:PhysicalChemistry')
     # add substances
+    subids = SubstancesSystems.objects.filter(system_id=dset.system_id).values_list('substance_id', flat=True)
+    sublist = Substances.objects.filter(id__in=subids)
+    subs = []
+    for sub in sublist:
+        s = {}
+        s.update({'@id': 'substance'})
+        s.update({'name': sub.name})
+        s.update({'formula': sub.formula})
+        s.update({'molweight': sub.mw})
+        s.update({'inchikey': sub.inchikey})
+        idents = sub.identifiers_set.filter(type__in=['casrn', 'inchi', 'iupacname'])
+        for ident in idents:
+            s.update({ident.type: ident.value})
+        subs.append(s)
+    jld.facets(subs)
+    # add chemicals
+
+
+    # dset.sys
     # add sources
     citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
               ref.volume + ", " + ref.startpage
