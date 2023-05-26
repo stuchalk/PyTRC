@@ -61,18 +61,27 @@ def scidata(request, dsid=None):
     # get the reference data
     ref = References.objects.get(id=refid)
     # generate the JSON-LD
-    uid = 'trc_' + str(dsid)
+    dparts = ref.doi.split("/")
+    jcode = ref.journal.set
+    uid = 'trc_' + jcode + '_' + dparts[1] + '_' + str(dset.setnum)
+    # create SciData object
     jld = SciData(uid)
-    jld.base('https://scidata.unf.edu/example')
+    base = 'https://scidata.unf.edu/tranche/trc/' + jcode + '/' + uid
+    jld.base(base)
     jld.context(['https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld',
                  'https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld',
                  'https://stuchalk.github.io/scidata/contexts/crg_substance.jsonld'])
+    # set graph id
+    jld.docid(base)
+    # add namespaces
+
     # jld.namespaces()
     jld.title('SciData JSON-LD file of data from the NIST TRC dataset')
     jld.description('SciData JSON-LD generate using the SciDataLib Python package')
-    au = {'name': 'Stuart J. Chalk', 'orcid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
-          'role': 'developer', 'email': 'schalk@unf.edu'}
-    jld.author([au])
+    au1 = {'name': 'Montana Sloan', 'orcid': '0000-0003-2127-9752', 'role': 'developer'}
+    au2 = {'name': 'Stuart J. Chalk', 'orcid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
+           'role': 'developer', 'email': 'schalk@unf.edu'}
+    jld.author([au1, au2])
     jld.version('1')
     # add substances
     # add sources
@@ -83,6 +92,7 @@ def scidata(request, dsid=None):
     src1 = {'citation': citestr, 'url': 'https://doi.org/' + ref.doi, 'type': 'paper'}
 
     jld.sources([src1])
-
+    # add rights
+    jld.rights('NIST Thermodynamics Research Center (Boulder, CO)', 'https://www.nist.gov/open/license')
     output = jld.output
     return JsonResponse(output, status=200)
