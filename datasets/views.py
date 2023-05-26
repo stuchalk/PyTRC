@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from trcconfig.models import *
+from crosswalks.models import *
 from datasets.functions import *
 from scidatalib.scidata import SciData
 
@@ -74,8 +75,13 @@ def scidata(request, dsid=None):
     # set graph id
     jld.docid(base)
     # add namespaces
-
-    # jld.namespaces()
+    otids = Crosswalks.objects.values_list('ontterm_id', flat=True).all().distinct()
+    nsids = Ontterms.objects.filter(id__in=otids).values_list('nspace', flat=True).all().distinct()
+    nspaces = Nspaces.objects.filter(id__in=nsids).values('ns', 'path')
+    nss = {}
+    for nspace in nspaces:
+        nss.update({nspace['ns']: nspace['path']})
+    jld.namespaces(nss)
     jld.title('SciData JSON-LD file of data from the NIST TRC dataset')
     jld.description('SciData JSON-LD generate using the SciDataLib Python package')
     au1 = {'name': 'Montana Sloan', 'orcid': '0000-0003-2127-9752', 'role': 'developer'}
