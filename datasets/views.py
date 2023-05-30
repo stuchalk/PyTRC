@@ -57,7 +57,7 @@ def view(request, dsid=None):
 
 def scidata(request, dsid=None):
     """ create scidata JSON-LD"""
-    # get the data
+    # get the dataset
     dset = Datasets.objects.get(id=dsid)
     refid = dset.reference_id
     # get the reference data
@@ -109,10 +109,21 @@ def scidata(request, dsid=None):
             s.update({ident.type: ident.value})
         subs.append(s)
     jld.facets(subs)
-    # add chemicals
-
-
-    # dset.sys
+    # add conditions
+    qids = dset.conditions_set.values_list('quantity_id', flat=True).all().distinct('quantity_id')
+    cons = []
+    for qid in qids:
+        conds = dset.conditions_set.filter(quantity_id=qid, datapoint__isnull=False).order_by('datapoint__row_index')
+        con, vals = {}, []
+        for cond in conds:
+            if 'quantity' not in con.keys():
+                con.update({'quantity': cond.quantity.name})
+            if 'unit' not in con.keys():
+                con.update({'unit': cond.unit.name})
+            vals.append(cond.number)
+        con.update({'values': vals})
+        cons.append(con)
+    jld.facets(cons)
     # add sources
     citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
               ref.volume + ", " + ref.startpage
