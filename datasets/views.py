@@ -5,6 +5,7 @@ from trcconfig.models import *
 from crosswalks.models import *
 from datasets.functions import *
 from scidatalib.scidata import SciData
+from sigfig import round
 
 
 def view(request, dsid=None):
@@ -110,20 +111,35 @@ def scidata(request, dsid=None):
         subs.append(s)
     jld.facets(subs)
     # add conditions
-    qids = dset.conditions_set.values_list('quantity_id', flat=True).all().distinct('quantity_id')
+    temp = dset.conditions_set.filter(datapoint__isnull=False).values_list('quantity_id', flat=True)
+    qids = list(set(temp))
     cons = []
     for qid in qids:
         conds = dset.conditions_set.filter(quantity_id=qid, datapoint__isnull=False).order_by('datapoint__row_index')
-        con, vals = {}, []
+        con, vals, uvals = {'@id': 'condition'}, [], []
         for cond in conds:
             if 'quantity' not in con.keys():
                 con.update({'quantity': cond.quantity.name})
             if 'unit' not in con.keys():
                 con.update({'unit': cond.unit.name})
-            vals.append(cond.number)
+            if cond.number not in uvals:
+                uvals.append(cond.number)
+                vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
+
         con.update({'values': vals})
         cons.append(con)
     jld.facets(cons)
+    # create rels variable to lookup conditions that are for a specfic datapoint
+    rels = {}
+    pnts = dset.conditions_set.filter(datapoint__isnull=False).order_by('datapoint__row_index')
+    for pnt in pnts:
+        if str(pnt.datapoint_id) not in rels:
+            rels.update({str(pnt.datapoint_id): []})
+
+    rels.update()
+
+
+
     # add sources
     citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
               ref.volume + ", " + ref.startpage
