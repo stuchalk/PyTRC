@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %} Homepage {% endblock %}
+{% block header %} Homepage {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-7 offset-1 text-justify" style="font-size: 18px;">
+            <h2>Welcome to the ThermoML Converter!</h2>
+            <p>The ThermoMLConverter is a website where data represented in the
+                <a href="https://iupac.org/what-we-do/digital-standards/thermoml/" target="_blank">IUPAC ThermoML XML</a>
+                specification and currently published at the
+                <a href="https://trc.nist.gov/ThermoML/" target="_blank">NIST TRC website</a>
+                that has been ingested into a MySQL database and made accessible on this website. This site is built using
+                <a href="https://www.djangoproject.com" target="_blank">Django</a>.
+                If you would like more information about this project please contact
+                <a href="mailto:schalk@unf.edu">Stuart Chalk</a>.</p>
+            <p>This site also provides functionality to download the data as JSON-LD in the
+                <a href="https://stuchalk.github.io/scidata/" target="_blank">SciData framework</a>
+                format.  The SciData framework is a generalized data model for storing scientifc data in an organized
+                semantic representation, and as this site outputs the data in JSON-LD it can be converted to RDF or
+                ingested into a graph database for use in machine learning.</p>
+            <p>This website is described in this paper, the code and complete datasets in MySQL and JSON-LD are available
+                online via GitHub.</p>
+            <p><em>NOTE: This site is not affiliated with nor supported by NIST TRC, however the developer is appreciative of
+                the quality of data in the TRC ThermoML repository and has created this website to make the data
+                available in additional formats.</em></p>
+        </div>
+        <div class="col-3">
+            <div class="card card-success" style="font-size: 18px;">
+                <div class="card-heading">
+                    <h3 class="card-title">Browse Extracted Data</h3>
+                </div>
+                <div class="list-group">
+                    <a href="/datasets/index" class="list-group-item">Datasets ({{ setcnt }})</a>
+                    <a href="/datasets/index" class="list-group-item">Keywords ({{ keycnt }})</a>
+                    <a href="/datasets/index" class="list-group-item">References ({{ refcnt }})</a>
+                    <a href="/datasets/index" class="list-group-item">Substances ({{ subcnt }})</a>
+                    <a href="/datasets/index" class="list-group-item">Systems ({{ syscnt }})</a>
+                </div>
+            </div>
+            {{ most }}
+        </div>
+    </div>
+{% endblock %}
