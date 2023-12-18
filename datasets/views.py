@@ -58,15 +58,19 @@ def view(request, dsid=None):
 
 def scidata(request, dsid=None):
     """ create scidata JSON-LD"""
+
     # get the dataset
     dset = Datasets.objects.get(id=dsid)
     refid = dset.reference_id
+
     # get the reference data
     ref = References.objects.get(id=refid)
+
     # generate the JSON-LD
     dparts = ref.doi.split("/")
     jcode = ref.journal.set
     uid = 'trc_' + jcode + '_' + dparts[1] + '_' + str(dset.setnum)
+
     # create SciData object
     jld = SciData(uid)
     base = 'https://scidata.unf.edu/tranche/trc/' + jcode + '/' + uid + '/'
@@ -74,8 +78,10 @@ def scidata(request, dsid=None):
     jld.context(['https://stuchalk.github.io/scidata/contexts/crg_mixture.jsonld',
                  'https://stuchalk.github.io/scidata/contexts/crg_chemical.jsonld',
                  'https://stuchalk.github.io/scidata/contexts/crg_substance.jsonld'])
+
     # set graph id
     jld.docid(base)
+
     # add namespaces
     otids = Crosswalks.objects.values_list('ontterm_id', flat=True).all().distinct()
     nsids = Ontterms.objects.filter(id__in=otids).values_list('nspace', flat=True).all().distinct()
@@ -91,14 +97,24 @@ def scidata(request, dsid=None):
            'role': 'developer', 'email': 'schalk@unf.edu'}
     jld.author([au1, au2])
     jld.version('1')
+
     # add discipline and subdiscipline
     jld.discipline('w3i:Chemistry')
     jld.subdiscipline('w3i:PhysicalChemistry')
+
+    # ADD METHODOLOGY DATA
+    sprops = Sampleprops.objects.filter(dataset_id=dsid).values_list('method_name', flat=True)
+    spropstr = ', '.join(sprops)
+    jld.aspects([{'@id': 'method', 'method': spropstr}])
+
+    # ADD SYSTEM DATA
+
     # add substances
     subids = SubstancesSystems.objects.filter(system_id=dset.system_id).values_list('substance_id', flat=True)
     sublist = Substances.objects.filter(id__in=subids)
-    subs = []
-    for sub in sublist:
+    subs, chms = [], []
+    for sidx, sub in enumerate(sublist):
+        # substances
         s = {}
         s.update({'@id': 'substance'})
         s.update({'name': sub.name})
@@ -109,26 +125,65 @@ def scidata(request, dsid=None):
         for ident in idents:
             s.update({ident.type: ident.value})
         subs.append(s)
-    jld.facets(subs)
-    # add conditions
-    temp = dset.conditions_set.filter(datapoint__isnull=False).values_list('quantity_id', flat=True)
-    qids = list(set(temp))
-    cons = []
-    for qid in qids:
-        conds = dset.conditions_set.filter(quantity_id=qid, datapoint__isnull=False).order_by('datapoint__row_index')
-        con, vals, uvals = {'@id': 'condition'}, [], []
-        for cond in conds:
-            if 'quantity' not in con.keys():
-                con.update({'quantity': cond.quantity.name})
-            if 'unit' not in con.keys():
-                con.update({'unit': cond.unit.name})
-            if cond.number not in uvals:
-                uvals.append(cond.number)
-                vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
 
-        con.update({'values': vals})
-        cons.append(con)
+        # chemicals
+        chm = sub.chemicals_set.all()[0]
+        c = {}
+        c.update({'@id': 'chemical'})
+        c.update({'substance#': 'substance/' + str(sidx + 1) + '/'})
+        c.update({'formula': sub.name})
+        c.update({'sourcetype': chm.sourcetype})
+        chms.append(c)
+
+    jld.facets(subs)
+    jld.facets(chms)
+
+    # add conditions
+    scondlist = dset.conditions_set.all().filter(datapoint_id__isnull=True).values_list('quantity_id', flat=True)
+    condlist = dset.conditions_set.all().filter(datapoint_id__isnull=False).values_list('quantity_id', flat=True)
+    sqids = list(set(scondlist))
+    qids = list(set(condlist))
+    quants, cons = [], []
+    # quantities first then the conditions referencing back to the quantity
+
+    if sqids:
+        for sqid in sqids:
+            # quantity
+            quant = Quantities.objects.get(id=sqid)
+
+            # condition
+            conds = dset.conditions_set.filter(quantity_id=sqid).order_by('datapoint__row_index')
+            con, vals, uvals = {'@id': 'condition'}, [], []
+            for cond in conds:
+                if 'quantity' not in con.keys():
+                    con.update({'quantity': cond.quantity.name})
+                if 'unit' not in con.keys():
+                    con.update({'unit': cond.unit.name})
+                if cond.number not in uvals:
+                    uvals.append(cond.number)
+                    vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
+
+            con.update({'values': vals})
+            cons.append(con)
+
+    if qids:
+        for qid in qids:
+            conds = dset.conditions_set.filter(quantity_id=qid).order_by('datapoint__row_index')
+            con, vals, uvals = {'@id': 'condition'}, [], []
+            for cond in conds:
+                if 'quantity' not in con.keys():
+                    con.update({'quantity': cond.quantity.name})
+                if 'unit' not in con.keys():
+                    con.update({'unit': cond.unit.name})
+                if cond.number not in uvals:
+                    uvals.append(cond.number)
+                    vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
+
+            con.update({'values': vals})
+            cons.append(con)
+
     jld.facets(cons)
+
     # create rels variable to lookup conditions that are for a specfic datapoint
     rels = {}
     pnts = dset.conditions_set.filter(datapoint__isnull=False).order_by('datapoint__row_index')
@@ -138,17 +193,21 @@ def scidata(request, dsid=None):
 
     rels.update()
 
-
-
     # add sources
-    citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + " " + str(ref.year) + ", " + \
-              ref.volume + ", " + ref.startpage
+    citestr = ref.title + " " + ref.aulist + "; " + ref.journal.name + \
+        " " + str(ref.year) + ", " + ref.volume + ", " + ref.startpage
     if ref.endpage:
         citestr += "-" + ref.endpage
     src1 = {'citation': citestr, 'url': 'https://doi.org/' + ref.doi, 'type': 'paper'}
-
     jld.sources([src1])
+
     # add rights
-    jld.rights('NIST Thermodynamics Research Center (Boulder, CO)', 'https://www.nist.gov/open/license')
+    jld.rights(
+        [
+            {'holder': 'NIST Thermodynamics Research Center (Boulder, CO)',
+             'license': 'https://www.nist.gov/open/license'}
+        ])
+
+    # output the JSON
     output = jld.output
     return JsonResponse(output, status=200)
