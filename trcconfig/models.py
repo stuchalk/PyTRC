@@ -342,6 +342,12 @@ class Conditions(models.Model):
         db_table = 'conditions'
         app_label = 'conditions'
 
+    @property
+    def nval(self):
+        man = self.significand
+        pwr = self.exponent
+        return man * pow(10, pwr)
+
 
 class Sampleprops(models.Model):
     """ sampleprops table model """

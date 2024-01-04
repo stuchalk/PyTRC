@@ -91,7 +91,7 @@ def scidata(request, dsid=None):
         nss.update({nspace['ns']: nspace['path']})
     jld.namespaces(nss)
     jld.title('SciData JSON-LD file of data from the NIST TRC dataset')
-    jld.description('SciData JSON-LD generate using the SciDataLib Python package')
+    jld.description('SciData JSON-LD generated using the SciDataLib (v 0.3.0) Python package')
     au1 = {'name': 'Montana Sloan', 'orcid': '0000-0003-2127-9752', 'role': 'developer'}
     au2 = {'name': 'Stuart J. Chalk', 'orcid': '0000-0002-0703-7776', 'organization': 'University of North Florida',
            'role': 'developer', 'email': 'schalk@unf.edu'}
@@ -103,6 +103,8 @@ def scidata(request, dsid=None):
     jld.subdiscipline('w3i:PhysicalChemistry')
 
     # ADD METHODOLOGY DATA
+    jld.evaluation('experimental')
+    jld.evaluation('obo:NCIT_C28041')
     sprops = Sampleprops.objects.filter(dataset_id=dsid).values_list('method_name', flat=True)
     spropstr = ', '.join(sprops)
     jld.aspects([{'@id': 'method', 'method': spropstr}])
@@ -143,45 +145,132 @@ def scidata(request, dsid=None):
     condlist = dset.conditions_set.all().filter(datapoint_id__isnull=False).values_list('quantity_id', flat=True)
     sqids = list(set(scondlist))
     qids = list(set(condlist))
-    quants, cons = [], []
-    # quantities first then the conditions referencing back to the quantity
-
+    quants, cons, qidxs = [], [], []
+    # index for datapoints and their conditions (dictionary of lists - key is dpid and list are conditions)
+    dpidx, scondnum, condnum, sconds = {}, 0, 0, []
+    # series conditions
     if sqids:
+        # quantities first then the conditions referencing back to the quantity
         for sqid in sqids:
-            # quantity
+            # get data
             quant = Quantities.objects.get(id=sqid)
-
-            # condition
-            conds = dset.conditions_set.filter(quantity_id=sqid).order_by('datapoint__row_index')
-            con, vals, uvals = {'@id': 'condition'}, [], []
-            for cond in conds:
-                if 'quantity' not in con.keys():
-                    con.update({'quantity': cond.quantity.name})
-                if 'unit' not in con.keys():
-                    con.update({'unit': cond.unit.name})
-                if cond.number not in uvals:
-                    uvals.append(cond.number)
-                    vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
-
-            con.update({'values': vals})
+            cond = dset.conditions_set.filter(quantity_id=sqid)[0]
+            # capture the unique quantities (quantity, phase, component)
+            qstr = quant.quantitykind.name
+            if cond.phase:
+                qstr += ':' + cond.phase.phasetype.name.lower()
+            if cond.component:
+                qstr += ':' + str(cond.component.compnum)
+            if qstr not in qidxs:
+                qidxs.append(qstr)
+            qidx = str(qidxs.index(qstr) + 1)
+            # quantity (metadata only no values)
+            quantity = {'@id': 'quantity'}
+            quantity.update({'quantitykind': quant.quantitykind.name})
+            cw = Crosswalks.objects.get(table='conditions', field=quant.name)
+            if cw:
+                quantity.update({'quantitykind#': cw.ontterm.nspace.ns + ':' + cw.ontterm.code})
+            quantity.update({'quantity': quant.name})
+            if cond.component:
+                quantity['quantity'] += ' of Constituent ' + str(cond.component.compnum)
+                quantity.update({'constituent': 'constituent/' + str(cond.component.compnum) + '/'})
+            if cond.phase:
+                quantity['quantity'] += ' (' + cond.phase.phasetype.name.lower() + ')'
+                quantity.update({'phase': cond.phase.phasetype.name.lower()})
+            if cond.unit:
+                quantity.update({'unit': cond.unit.name})
+                if cond.unit.qudt:
+                    qns = Nspaces.objects.get(ns='qudt')
+                    jld.namespaces({'qudt': qns.path})
+                    quantity.update({'unit#': 'qudt:' + cond.unit.qudt})
+            quantity.update({'temp': qstr})
+            quants.append(quantity)
+            # condition (only one condition value expected for series conditions)
+            scondnum += 1
+            condnum += 1  # needed to offset the regular condnums by the # of sconds
+            sconds.append('condition/' + str(scondnum) + '/')
+            if cond.datapoint_id not in dpidx.keys():
+                dpidx.update({cond.datapoint_id: []})
+            dpidx[cond.datapoint_id].append('condition/' + str(condnum) + '/')
+            con = {'@id': 'condition'}
+            con.update({'quantity#': 'quantity/' + qidx + '/'})
+            number = float(cond.number)
+            if isinstance(number, int):
+                con.update({'datatype': 'xsd:integer'})
+            else:
+                con.update({'datatype': 'xsd:float'})
+            con.update({'number': round(number, sigfigs=cond.accuracy)})
+            if not cond.exact:
+                con.update({'sigfigs': cond.accuracy})
+                con.update({'error': pow(10, int(cond.exponent) - cond.accuracy + 1)})
+                con.update({'errortype': 'absolute'})
+                con.update({'errornote': 'estimated from data'})
             cons.append(con)
 
+    # regular (individual datapoint) conditions
     if qids:
         for qid in qids:
+            # get data
+            quant = Quantities.objects.get(id=qid)
             conds = dset.conditions_set.filter(quantity_id=qid).order_by('datapoint__row_index')
-            con, vals, uvals = {'@id': 'condition'}, [], []
+            # conditions (one to many)
             for cond in conds:
-                if 'quantity' not in con.keys():
-                    con.update({'quantity': cond.quantity.name})
-                if 'unit' not in con.keys():
-                    con.update({'unit': cond.unit.name})
-                if cond.number not in uvals:
-                    uvals.append(cond.number)
-                    vals.append({"@id": 'value', 'value': round(float(cond.number), sigfigs=cond.accuracy)})
+                # capture the unique quantities (quantity, phase, component)
+                qstr = quant.quantitykind.name
+                if cond.phase:
+                    qstr += ':' + cond.phase.phasetype.name.lower()
+                if cond.component:
+                    qstr += ':' + str(cond.component.compnum)
+                if qstr not in qidxs:
+                    qidxs.append(qstr)
+                    # go ahead a process and add quantity to file
+                    quant = Quantities.objects.get(id=qid)
+                    quantity = {'@id': 'quantity'}
+                    quantity.update({'quantitykind': quant.quantitykind.name})
+                    cw = Crosswalks.objects.get(table='conditions', field=quant.name)
+                    quantity.update({'quantitykind#': cw.ontterm.nspace.ns + ':' + cw.ontterm.code})
+                    quantity.update({'quantity': quant.name})
+                    if cond.component:
+                        quantity['quantity'] += ' of Constituent ' + str(cond.component.compnum)
+                        quantity.update({'constituent': 'constituent/' + str(cond.component.compnum) + '/'})
+                    if cond.phase:
+                        quantity['quantity'] += ' (' + cond.phase.phasetype.name.lower() + ')'
+                        quantity.update({'phase': cond.phase.phasetype.name.lower()})
+                    if cond.unit:
+                        quantity.update({'unit': cond.unit.name})
+                        if cond.unit.qudt:
+                            qns = Nspaces.objects.get(ns='qudt')
+                            jld.namespaces({'qudt': qns.path})
+                            quantity.update({'unit#': 'qudt:' + cond.unit.qudt})
+                    quants.append(quantity)
+                else:
+                    # quantity already added - just process condition
+                    pass
 
-            con.update({'values': vals})
-            cons.append(con)
+                # get quantity index #
+                qidx = str(qidxs.index(qstr) + 1)
+                # update datpoint idx
+                condnum += 1
+                if cond.datapoint_id not in dpidx.keys():
+                    dpidx.update({cond.datapoint_id: []})
+                dpidx[cond.datapoint_id].append('condition/' + str(condnum) + '/')
+                # create condition
+                con = {'@id': 'condition'}
+                con.update({'quantity#': 'quantity/' + qidx + '/'})
+                number = float(cond.number)
+                if isinstance(number, int):
+                    con.update({'datatype': 'xsd:integer'})
+                else:
+                    con.update({'datatype': 'xsd:float'})
+                con.update({'number': round(number, sigfigs=cond.accuracy)})
+                if not cond.exact:
+                    con.update({'sigfigs': cond.accuracy})
+                    con.update({'error': pow(10, int(cond.exponent) - cond.accuracy + 1)})
+                    con.update({'errortype': 'absolute'})
+                    con.update({'errornote': 'estimated from data'})
+                cons.append(con)
 
+    jld.facets(quants)
     jld.facets(cons)
 
     # create rels variable to lookup conditions that are for a specfic datapoint

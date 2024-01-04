@@ -15,6 +15,7 @@ class Nspaces(models.Model):
         db_table = 'nspaces'
         app_label = 'nspaces'
 
+
 class Ontterms(models.Model):
     id = models.SmallAutoField(primary_key=True)
     title = models.CharField(max_length=256)
@@ -33,8 +34,6 @@ class Ontterms(models.Model):
 
 
 class Crosswalks(models.Model):
-    context_id = models.SmallIntegerField()
-    dataset_id = models.SmallIntegerField()
     table = models.CharField(max_length=128)
     field = models.CharField(max_length=256)
     ontterm = models.ForeignKey(Ontterms, models.DO_NOTHING, db_column='ontterm_id')
