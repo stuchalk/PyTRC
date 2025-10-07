@@ -1,7 +1,7 @@
 """ datasets views file """
 from django.shortcuts import render
 from django.http import JsonResponse
-from trcconfig.models import *
+from config.models import *
 from crosswalks.models import *
 from datasets.functions import *
 from scidatalib.scidata import SciData

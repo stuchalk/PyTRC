@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from trcconfig.models import *
+from config.models import *
 
 def index(request):
     """ function to get a list of terms """

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from trcconfig.models import *
+from config.models import *
 from django.db.models.functions import Lower
 import re
 

@@ -1,5 +1,5 @@
 """ helper functions for datasets table data """
-from trcconfig.models import Datasets
+from config.models import Datasets
 from sigfig import round
 
 

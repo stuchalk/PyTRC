@@ -2,10 +2,10 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "trcconfig.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
-from trcconfig.models import *
+from config.models import *
 import pandas as pd
 from sigfig import round
 import json

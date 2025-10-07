@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from trcconfig.models import *
+from config.models import *
 from datasets.functions import *
 
 
