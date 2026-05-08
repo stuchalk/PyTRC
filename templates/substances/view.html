@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load set_extras %}
+{% block title %} Substance View {% endblock %}
+{% block header %} Substance View {% endblock %}
+{% block content %}
+    <!-- metadata -->
+    <div class="row">
+        <div class="col-6 offset-1">
+            <div class="card">
+                <div class="card-header text-bg-success">
+                    <h3 class="card-title">Substance</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled" style="margin-bottom: 0;">
+                        <li><b>Substance Name:</b> {{ sub.name }}></li>
+                        <li><b>Formula:</b> {{ sub.formula }}</li>
+                        <li><b>Molecular Weight:</b> {{ sub.mw }} g/mol</li>
+                        {% if sub.identifiers_set.all %}
+                            <li><b>Identifiers</b>:
+                                <ul>
+                                    {% for ident in sub.identifiers_set.all %}
+                                        <li>{{ ident.type }}: {{ ident.value }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-6" style="padding-left: 0;"></div>
+    </div>
+    <!-- data/graph -->
+    <div class="row">
+        <div class="col-5 offset-1 mt-4">
+            <!-- create data table -->
+            <div class="card">
+                <div class="card-header bg-info">
+                    <h5 class="card-title">Data</h5>
+                </div>
+                <div class="card-body responsivediv400">
+                    {% if sets|length == 1 %}
+                        {% with dset=sets.0 %}
+                            <table class="table table-condensed table-striped">
+                                {% if dset.sconds|length > 0 %}
+                                    <caption class="fw-bold">{{ dset.sconds|safe }}</caption>
+                                {% endif %}
+                                <thead class="fw-bold">
+                                {% for cidx in dset.colidx %}
+                                    <td class="col">{{ dset.hdrs|getbykey:cidx|safe }}</td>
+                                {% endfor %}
+                                </thead>
+                                <tbody>
+                                    {% for ridx in dset.rowidx %}
+                                        <tr>
+                                            {% for cidx in dset.colidx %}
+                                                {% with col=dset.cols|getbykey:cidx %}
+                                                    <td>{{ col|getbykey:ridx|safe }}</td>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endwith %}
+                    {% else %}
+                        Please code me!
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            <!-- create chart -->
+            {{ sys.id }}; {{ sys.name }}; {{ sys.identifier }}
+        </div>
+    </div>
+{% endblock %}

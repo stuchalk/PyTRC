@@ -18,18 +18,17 @@ def home(request):
 
 def index(request):
     """ function to get a list of substances """
-    subs = Substances.objects.values('name').all().order_by(Lower('name'))
+    subs = Substances.objects.all().order_by(Lower('name')).values('id','name')
     subsbychar = {}
     for sub in subs:
         temp = re.sub(r'\[\(', '', str(sub['name']))
         if temp[0] not in subsbychar.keys():
             subsbychar.update({temp[0]: []})
-        subsbychar[temp[0]].append(sub['name'])
+        subsbychar[temp[0]].append(sub)
     return render(request, '../templates/substances/index.html', {'subs': subsbychar})
 
 
-"""
-def view(request, refid=None):
-
-    return render(request, '../templates/references/view.html', {})
-"""
+def view(request, subid=None):
+    sub = Substances.objects.get(id=subid)
+    idents = sub.identifiers_set
+    return render(request, '../templates/substances/view.html', {'sub': sub})

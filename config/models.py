@@ -2,6 +2,19 @@
 from django.db import models
 
 
+class IdentifierTypes(models.TextChoices):
+    """ choice for identifier type """
+    # 'inchi','inchikey','casrn','smiles','chemspiderId','pubchemId','iupacname','springerId','othername','csmiles','ismiles','wikidataId','dsstoxcmpId','ecnumber','chemblId'
+    ACCEPTEDNONSI = 'Accepted Non-SI', 'Accepted Non-SI'
+    CGSBASE = 'CGS Base', 'CGS Base'
+    OTHER = 'Other', 'Other'
+    SIBASE = 'SI Base', 'SI Base'
+    SICOHDERIVED = 'SI Coherent Derived', 'SI Coherent Derived'
+    SIDERIVED = 'SI Derived', 'SI Derived'
+    SISPECIALNAME = 'SI Special Named', 'SI Special Named'
+    USCUSTOMARY = 'US Customary', 'US Customary'
+
+
 class Journals(models.Model):
     """ journals table model """
     id = models.SmallAutoField(primary_key=True)
@@ -64,7 +77,7 @@ class Substances(models.Model):
 
 class Identifiers(models.Model):
     """ identifiers table model """
-    substance = models.ForeignKey(Substances, models.DO_NOTHING, db_column='substance_id')
+    sub = models.ForeignKey(Substances, models.DO_NOTHING, db_column='substance_id')
     type = models.CharField(max_length=12)
     value = models.CharField(max_length=1024)
     source = models.CharField(max_length=8, blank=True, null=True)
@@ -139,8 +152,8 @@ class Systems(models.Model):
 
 class SubstancesSystems(models.Model):
     """ substances_system join table model """
-    substance = models.ForeignKey(Substances, models.DO_NOTHING, db_column='substance_id')
-    system = models.ForeignKey(Systems, models.DO_NOTHING, db_column='system_id')
+    sub = models.ForeignKey(Substances, on_delete=models.CASCADE, db_column='substance_id')
+    sys = models.ForeignKey(Systems, on_delete=models.CASCADE, db_column='system_id')
     updated = models.DateTimeField()
 
     class Meta:

@@ -24,7 +24,7 @@
                         <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse{% if forloop.counter == 1 %} show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#subaccordion">
                             <div class="accordion-body list-group listgrp-flush p-0">
                                 {% for sub in sublist %}
-                                    <a href="/substances/view/{{ sub }}" class="list-group-item list-group-item-small item" data-content="{{ sub|lower }}">{{ sub }} </a>
+                                    <a href="/substances/view/{{ sub.id }}" class="list-group-item list-group-item-small item" data-content="{{ sub.name|lower }}">{{ sub.name }} </a>
                                 {% endfor %}
                             </div>
                         </div>
