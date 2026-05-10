@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %} Quantities Index {% endblock %}
+{% block header %} Quantities Index {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-8 offset-1">
+            <h3>Measured Quantites</h3>
+        </div>
+        <div class="col-2">
+            <label for="listsrc" hidden=""></label>
+            <input id="listsrc" placeholder="Search quantities..." class="form-control pull-right" data-search-override="true" type="text"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-10 offset-1">
+            <div class="card">
+                <div class="list-group list-group-flush responsivediv400">
+                {% for qnt in qnts %}
+                    {% if qnt.cpnts > 0 or qnt.dpnts > 0 %}
+                    <a href="/quantities/view/{{ qnt.id }}" class="list-group-item list-group-item-small item" data-content="{{ qnt.name|lower }}">
+                        {{ qnt.name }} (Condition Quantity: {{ qnt.cpnts }}) (Data Quantity: {{ qnt.dpnts }})
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

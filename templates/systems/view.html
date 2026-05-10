@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load set_extras %}
+{% load static %}
+{% block title %} System View {% endblock %}
+{% block header %} System View {% endblock %}
+{% block content %}
+    <!-- metadata -->
+    <div class="row">
+        <div class="col-xs-12 col-sm-<?php echo 12-(3*$subcnt); ?> col-md-<?php echo 10-(2*$subcnt); ?> col-md-offset-1" style="padding-right: 3px;">
+            <div class="panel panel-success" style="font-size: 16px;height: 250px;">
+                <div class="panel-heading">
+                    <h1 class="panel-title">System</h1>
+                </div>
+                <div class="panel-body" style="padding: 10px 10px 10px 15px;">
+                    <ul class="list-unstyled">
+                        <li><b>Name:</b> {{ sys.name }}</li>
+                        <li><b>Substances</b>:
+                            {% for sub in sys.substances_set.all %}
+                                <a href="{% url 'substance view' sub.id %}">{{ sub.name }}</a>
+                                {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </li>
+                        <li><b>Composition:</b> {{ sys.composition }}</li>
+                        <li><b>References:</b> </li>
+                        <li><b>Datasets:</b> </li>
+                        <li><b>Datapoints:</b> </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- data/graph -->
+{% endblock %}

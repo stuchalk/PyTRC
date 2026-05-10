@@ -1,18 +1,21 @@
 from django.shortcuts import render
 from config.models import *
+from django.db.models.functions import Lower
+import re
+
 
 def index(request):
     """ function to get a list of terms """
-    terms = Keywords.objects.values('term', 'id', 'chk').all().order_by('term')
+    terms = Keywords.objects.all().order_by(Lower('term'))
     termsbychar = {}
     for term in terms:
-        if term['chk'] is False:
-            if str(term['term']).upper()[0] not in termsbychar.keys():
-                termsbychar.update({str(term['term']).upper()[0]: {}})
-            if str(term['term']) not in termsbychar[str(term['term']).upper()[0]].keys():
-                termsbychar[str(term['term']).upper()[0]].update({str(term['term']): []})
-            termsbychar[str(term['term']).upper()[0]][str(term['term'])].append(term['id'])
-    return render(request, '../templates/keywords/index.html', {'terms': termsbychar})
+        if not term.chk:
+            temp = re.sub(r'^[\[(+\-)/]+', '', str(term.term.upper()))
+            if temp[0] not in termsbychar.keys():
+                termsbychar.update({temp[0]: []})
+            termsbychar[temp[0]].append(term)
+    terms = dict(sorted(termsbychar.items()))
+    return render(request, '../templates/keywords/index.html', {'terms': terms})
 
 """
 def view(request, refid=None):

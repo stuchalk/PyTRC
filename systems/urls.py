@@ -4,6 +4,6 @@ from systems import views
 
 
 urlpatterns = [
-    path("", views.index, name='systems index'),
-    # path("view/<kwid>", views.view, name='keywords view'),
+    path("", views.index, name='system index'),
+    path("view/<int:sysid>", views.view, name='system view'),
 ]

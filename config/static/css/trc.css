@@ -59,3 +59,7 @@ mark {
 	overflow-y: scroll;
 	font-size: 14px;
 }
+
+.notseen {
+	display: none;
+}

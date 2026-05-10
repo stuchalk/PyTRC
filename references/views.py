@@ -33,7 +33,3 @@ def view(request, refid=None):
         descstr += s['quantities'] + ", <b>system:</b> " + s['system']
         sets.append({'id': dset.id, 'desc': descstr})
     return render(request, '../templates/references/view.html', {'ref': ref, 'sets': sets})
-
-
-def rdr(request, bad=None):
-    return redirect('/references/')

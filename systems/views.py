@@ -1,35 +1,24 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from config.models import *
 from django.db.models.functions import Lower
+import re
 
 
 def index(request):
     """ function to get a list of systems """
-    syss = Systems.objects.values('name', 'id').all().order_by(Lower('name'))
+    syss = Systems.objects.all().order_by(Lower('name')).values('id', 'name', 'composition')
     sysbychar = {}
     for sys in syss:
-        if str(sys['name']).upper()[0] not in sysbychar.keys():
-            sysbychar.update({str(sys['name']).upper()[0]: {}})
-        if str(sys['name']) not in sysbychar[str(sys['name']).upper()[0]].keys():
-            sysbychar[str(sys['name']).upper()[0]].update({str(sys['name']): []})
-        sysbychar[str(sys['name']).upper()[0]][str(sys['name'])].append(sys['id'])
-    return render(request, '../templates/systems/index.html', {'syss': sysbychar, 'app': 'Systems'})
+        temp = re.sub(r'^[\[(+\-)/]+', '', str(sys['name'].upper()))
+        if temp[0] not in sysbychar.keys():
+            sysbychar.update({temp[0]: []})
+        sysbychar[temp[0]].append(sys)
+    syss = dict(sorted(sysbychar.items()))
+    return render(request, '../templates/systems/index.html', {'syss': syss})
 
-"""
-def view(request, refid=None):
-    if not refid:
-        return redirect('/references')
-    ref = References.objects.get(id=refid)
-    dsets = ref.datasets_set.all()
-    sets = []
-    for dset in dsets:
-        s = {}
-        s.update({'points': dset.points})
-        s.update({'numsers': dset.dataseries_set.all().count()})
-        s.update({'system': dset.system.name})
-        s.update({'quantities': qlist(dset.id)})
-        descstr = str(s['points']) + " datapoints in " + str(s['numsers']) + " series, <b>quantities:</b> "
-        descstr += s['quantities'] + ", <b>system:</b> " + s['system']
-        sets.append({'id': dset.id, 'desc': descstr})
-    return render(request, '../templates/references/view.html', {'ref': ref, 'sets': sets})mplates/keywords/index.html', {})
-    """
+
+def view(request, sysid=None):
+    if not sysid:
+        return redirect('/systems')
+    sys = Systems.objects.get(id=sysid)
+    return render(request, '../templates/systems/view.html', {'sys': sys})

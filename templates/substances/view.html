@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load set_extras %}
+{% load static %}
 {% block title %} Substance View {% endblock %}
 {% block header %} Substance View {% endblock %}
 {% block content %}
@@ -7,12 +8,10 @@
     <div class="row">
         <div class="col-6 offset-1">
             <div class="card">
-                <div class="card-header text-bg-success">
-                    <h3 class="card-title">Substance</h3>
-                </div>
+                <div class="card-header h4 m-0">Substance</div>
                 <div class="card-body">
                     <ul class="list-unstyled" style="margin-bottom: 0;">
-                        <li><b>Substance Name:</b> {{ sub.name }}></li>
+                        <li><b>Substance Name:</b> {{ sub.name }}</li>
                         <li><b>Formula:</b> {{ sub.formula }}</li>
                         <li><b>Molecular Weight:</b> {{ sub.mw }} g/mol</li>
                         {% if sub.identifiers_set.all %}
@@ -28,50 +27,89 @@
                 </div>
             </div>
         </div>
-        <div class="col-6" style="padding-left: 0;"></div>
-    </div>
-    <!-- data/graph -->
-    <div class="row">
-        <div class="col-5 offset-1 mt-4">
-            <!-- create data table -->
+        <div class="col-4">
             <div class="card">
-                <div class="card-header bg-info">
-                    <h5 class="card-title">Data</h5>
-                </div>
-                <div class="card-body responsivediv400">
-                    {% if sets|length == 1 %}
-                        {% with dset=sets.0 %}
-                            <table class="table table-condensed table-striped">
-                                {% if dset.sconds|length > 0 %}
-                                    <caption class="fw-bold">{{ dset.sconds|safe }}</caption>
-                                {% endif %}
-                                <thead class="fw-bold">
-                                {% for cidx in dset.colidx %}
-                                    <td class="col">{{ dset.hdrs|getbykey:cidx|safe }}</td>
-                                {% endfor %}
-                                </thead>
-                                <tbody>
-                                    {% for ridx in dset.rowidx %}
-                                        <tr>
-                                            {% for cidx in dset.colidx %}
-                                                {% with col=dset.cols|getbykey:cidx %}
-                                                    <td>{{ col|getbykey:ridx|safe }}</td>
-                                                {% endwith %}
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        {% endwith %}
-                    {% else %}
-                        Please code me!
-                    {% endif %}
+                <div class="card-header h4 m-0">{{ sub.name }}</div>
+                <div class="card-body">
+                    <script type="text/javascript" src="{% static '/js/jsmol/JSmol.min.js' %}"></script>
+                    <script type="text/javascript" src="{% static '/js/jsmol/js/JSmolJSV.js' %}"></script>
+                    <script type='text/javascript'>
+                        jsvApplet = "jsvApplet0"
+                        $(document).ready(function(){
+                            $("#jsmol0").html(Jmol.getAppletHtml("jsmol0", Info0));
+                        });
+                        jmol_isReady = function(applet) {
+                            Jmol._getElement(applet, "appletdiv").style.border = "1px solid #D0D0D0"
+                        }
+                        Info0 = {
+                            width: "100%",
+                            height: "350",
+                            src: "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/{{ sub.inchikey }}/SDF?record_type=3d",
+                            debug: false,
+                            color: "#EEEEEE",
+                            addSelectionOptions: false,
+                            serverURL: "https://trc.caco3consulting.com/js/jsmol/php/jsmol.php",
+                            use: "HTML5",
+                            coverImage: "",
+                            coverScript: "",
+                            deferApplet: false,
+                            deferUncover: false,
+                            jarPath: "java",
+                            j2sPath: "/static/js/jsmol/j2s",
+                            jarFile: "JmolApplet.jar",
+                            isSigned: false,
+                            readyFunction: jmol_isReady
+                        }
+                    </script>
+                    <div id="jsmol0" class="mb-3 center-block"></div>
+                    <ul>
+                        {% for key, value in ids.items %}
+                            {% if key == "iupacname" %}
+                                <li>IUPAC Name: {{ value }}</li>
+                            {% elif key == "casrn" %}
+                                <li>CASRN: {{ value }}</li>
+                            {% elif key == "inchi" %}
+                                <li>InChI: {{ value }}</li>
+                            {% elif key == "inchikey" %}
+                                <li>InChIKey: {{ value }}</li>
+                            {% elif key == "smiles" %}
+                                <li>SMILES: {{ value }}</li>
+                            {% elif key == "pubchemId" %}
+                                <li>PubChem CID: {{ value }}</li>
+                            {% elif key == "chemspiderId" %}
+                                <li>ChemSpider ID: {{ value }}</li>
+                            {% endif %}
+                        {%  endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
-        <div class="col-5">
-            <!-- create chart -->
-            {{ sys.id }}; {{ sys.name }}; {{ sys.identifier }}
+    </div>
+    <!-- data/graph -->
+    <div class="row">
+        <div class="col-10 offset-1 mt-4">
+            <!-- create data table -->
+            <div class="card">
+                <div class="card-header h4 m-0">Systems and Datasets</div>
+                <div class="card-body responsivediv400">
+                    {% if sub.systems_set.all %}
+                        <ul>
+                        {% for sys in sub.systems_set.all %}
+                            <li><a href="{% url 'systems view' sys.id %}">{{ sys.name }} (Datasets: {{ sys.datasets_set.all|length }})</a>
+                                <ul>
+                                    {% for set in sys.datasets_set.all %}
+                                        <li><a href="{% url 'dataset view' set.id %}">{{ set.title }}</a>
+                                            (Dataseries: {{ set.dataseries_set.all|length }},
+                                            Datapoints: {{ set.points }},
+                                            Quantity: <a href="{% url 'quantities view' set.qnt.id %}">{{ set.qnt.name }}</a>)</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

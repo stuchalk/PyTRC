@@ -1,11 +1,24 @@
 """ datasets views file """
 from django.shortcuts import render
+from django.db.models.functions import Lower
 from django.http import JsonResponse
 from config.models import *
 from crosswalks.models import *
 from datasets.functions import *
 from scidatalib.scidata import SciData
 from sigfig import round
+
+
+def index(request):
+    sets = Datasets.objects.all().order_by(Lower('title'))
+    setsbyqnt = {}
+    for dset in sets:
+        qnt = dset.qnt.name
+        if qnt not in setsbyqnt.keys():
+            setsbyqnt.update({qnt: []})
+        setsbyqnt[qnt].append(dset.reference)
+    sets = dict(sorted(setsbyqnt.items()))
+    return render(request, '../templates/datasets/index.html', {'sets': sets})
 
 
 def view(request, dsid=None):
@@ -201,7 +214,7 @@ def scidata(request, dsid=None):
                 con.update({'datatype': 'xsd:float'})
             con.update({'number': round(number, sigfigs=cond.accuracy)})
             if not cond.exact:
-                con.update({'sigfigs': cond.accuracy})
+                con.update({'sigfigs': str(cond.accuracy)})
                 con.update({'error': pow(10, int(cond.exponent) - cond.accuracy + 1)})
                 con.update({'errortype': 'absolute'})
                 con.update({'errornote': 'estimated from data'})
@@ -264,7 +277,7 @@ def scidata(request, dsid=None):
                     con.update({'datatype': 'xsd:float'})
                 con.update({'number': round(number, sigfigs=cond.accuracy)})
                 if not cond.exact:
-                    con.update({'sigfigs': cond.accuracy})
+                    con.update({'sigfigs': str(cond.accuracy)})
                     con.update({'error': pow(10, int(cond.exponent) - cond.accuracy + 1)})
                     con.update({'errortype': 'absolute'})
                     con.update({'errornote': 'estimated from data'})

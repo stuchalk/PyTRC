@@ -65,14 +65,24 @@ class Substances(models.Model):
     mw = models.CharField(max_length=16, blank=True, null=True)
     mwsrc = models.CharField(max_length=16, blank=True, null=True)
     inchikey = models.CharField(max_length=27, blank=True, null=True)
-    files = models.PositiveSmallIntegerField(blank=True, null=True)
-    systems = models.PositiveSmallIntegerField(blank=True, null=True)
     updated = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = 'substances'
         app_label = 'substances'
+
+    @property
+    def iupac(self):
+        idents = self.identifiers_set.all()
+        iupac = idents.filter(type='iupacname').values_list('value', flat=True)
+        return iupac
+
+    @property
+    def casrn(self):
+        idents = self.identifiers_set.all()
+        casrn = idents.filter(type='casrn').values_list('value', flat=True)
+        return casrn
 
 
 class Identifiers(models.Model):
@@ -142,6 +152,7 @@ class Systems(models.Model):
     identifier = models.CharField(unique=True, max_length=128)
     refcnt = models.PositiveSmallIntegerField(blank=True, null=True)
     setcnt = models.PositiveSmallIntegerField(blank=True, null=True)
+    cmpnts = models.ManyToManyField(Substances, through='SubstancesSystems')
     updated = models.DateTimeField()
 
     class Meta:
@@ -159,7 +170,7 @@ class SubstancesSystems(models.Model):
     class Meta:
         managed = False
         db_table = 'substances_systems'
-        app_label = 'substances_systems'
+        app_label = 'systems'
 
 
 class Datasets(models.Model):
@@ -178,6 +189,11 @@ class Datasets(models.Model):
         managed = False
         db_table = 'datasets'
         app_label = 'datasets'
+
+    @property
+    def qnt(self):
+        """get the quantity measured in a database"""
+        return self.datapoints_set.all()[0].data_set.all()[0].quantity
 
 
 class Dataseries(models.Model):
@@ -220,7 +236,7 @@ class Units(models.Model):
     class Meta:
         managed = False
         db_table = 'units'
-        app_label = 'units'
+        app_label = 'quantities'
 
 
 class Quantitykinds(models.Model):
@@ -238,7 +254,7 @@ class Quantitykinds(models.Model):
     class Meta:
         managed = False
         db_table = 'quantitykinds'
-        app_label = 'quantitykinds'
+        app_label = 'quantities'
 
 
 class Quantities(models.Model):
@@ -264,6 +280,16 @@ class Quantities(models.Model):
         managed = False
         db_table = 'quantities'
         app_label = 'quantities'
+
+    @property
+    def dpnts(self):
+        dpnts = self.data_set.all().count()
+        return dpnts
+
+    @property
+    def cpnts(self):
+        cpnts = self.conditions_set.all().count()
+        return cpnts
 
 
 class Chemicals(models.Model):

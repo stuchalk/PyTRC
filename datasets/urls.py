@@ -4,6 +4,7 @@ from datasets import views
 
 
 urlpatterns = [
-    path("view/<dsid>", views.view, name='dataset view'),
-    path("scidata/<dsid>", views.scidata, name='SciData JSON-LD'),
+    path("", views.index, name='dataset index'),
+    path("view/<int:dsid>", views.view, name='dataset view'),
+    path("scidata/<int:dsid>", views.scidata, name='SciData JSON-LD'),
 ]
