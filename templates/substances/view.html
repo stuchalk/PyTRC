@@ -95,13 +95,13 @@
                     {% if sub.systems_set.all %}
                         <ul>
                         {% for sys in sub.systems_set.all %}
-                            <li><a href="{% url 'systems view' sys.id %}">{{ sys.name }} (Datasets: {{ sys.datasets_set.all|length }})</a>
+                            <li><a href="{% url 'system view' sys.id %}">{{ sys.name }} (Datasets: {{ sys.datasets_set.all|length }})</a>
                                 <ul>
                                     {% for set in sys.datasets_set.all %}
                                         <li><a href="{% url 'dataset view' set.id %}">{{ set.title }}</a>
                                             (Dataseries: {{ set.dataseries_set.all|length }},
                                             Datapoints: {{ set.points }},
-                                            Quantity: <a href="{% url 'quantities view' set.qnt.id %}">{{ set.qnt.name }}</a>)</li>
+                                            Quantity: <a href="{% url 'quantity view' set.qnt.id %}">{{ set.qnt.name }}</a>)</li>
                                     {% endfor %}
                                 </ul>
                             </li>
