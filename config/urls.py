@@ -24,5 +24,6 @@ urlpatterns = [
     path('references/', include('references.urls')),
     path('datasets/', include('datasets.urls')),
     path('keywords/', include('keywords.urls')),
-    path('quantities/', include('quantities.urls'))
+    path('quantities/', include('quantities.urls')),
+    path('gb/', include('gb.urls'))
 ]

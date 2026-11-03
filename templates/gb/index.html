@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %} Substances Index {% endblock %}
+{% block header %} Substances Index {% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-8 offset-1">
+            <h3>Terms</h3>
+        </div>
+        <div class="col-2">
+            <label for="listsrc" hidden=""></label>
+            <input id="listsrc" placeholder="Search keywords..." class="form-control pull-right" data-search-override="true" type="text"/>
+        </div>
+    </div>
+    <div class="col-8 offset-1">
+        <ul>
+            {% for term in terms %}
+                <li><a href="https://goldbook.iupac.org/terms/view/{{ term }}/json">https://goldbook.iupac.org/terms/view/{{ term }}/json</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
